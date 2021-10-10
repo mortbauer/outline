@@ -5,11 +5,21 @@ import { type Request } from "koa";
 import { OAuthStateMismatchError } from "../errors";
 import { getCookieDomain } from "./domains";
 
+function randomState(){
+  // taken from: https://medium.com/@dazcyril/generating-cryptographic-random-state-in-javascript-in-the-browser-c538b3daae50
+  const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let array = new Uint8Array(40);
+  window.crypto.getRandomValues(array);
+  array = array.map(x => validChars.charCodeAt(x % validChars.length));
+  const randomState = String.fromCharCode.apply(null, array);
+  return randomState
+}
+
 export class StateStore {
   key: string = "state";
 
   store = (req: Request, callback: (err: ?Error, state?: string) => void) => {
-    const state = Math.random().toString(36).substring(7);
+    const state = randomState();
 
     // $FlowFixMe
     req.cookies.set(this.key, state, {
