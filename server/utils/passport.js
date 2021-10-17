@@ -4,14 +4,10 @@ import fetch from "fetch-with-proxy";
 import { type Request } from "koa";
 import { OAuthStateMismatchError } from "../errors";
 import { getCookieDomain } from "./domains";
+import { randomBytes } from "crypto";
 
 function randomState(){
-  // taken from: https://medium.com/@dazcyril/generating-cryptographic-random-state-in-javascript-in-the-browser-c538b3daae50
-  const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let array = new Uint8Array(40);
-  window.crypto.getRandomValues(array);
-  array = array.map(x => validChars.charCodeAt(x % validChars.length));
-  const randomState = String.fromCharCode.apply(null, array);
+  const randomState = randomBytes(48).toString('hex');
   return randomState
 }
 
